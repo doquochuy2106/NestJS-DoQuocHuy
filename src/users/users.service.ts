@@ -1,11 +1,13 @@
-import { Injectable } from '@nestjs/common';
-import { CreateUserDto } from './dto/create-user.dto';
+import { BadRequestException, Injectable } from '@nestjs/common';
+import { CreateUserDto, RegisterUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { InjectModel } from '@nestjs/mongoose';
 import { User, UserDocument } from './schemas/user.schema';
 import mongoose, { Model } from 'mongoose';
 import { genSaltSync, hashSync, compareSync } from 'bcryptjs';
 import { SoftDeleteModel } from 'soft-delete-plugin-mongoose';
+import { IUser } from './users.interface';
+import aqp from 'api-query-params';
 
 @Injectable()
 export class UsersService {
@@ -19,19 +21,55 @@ export class UsersService {
     return hash;
   };
 
-  async create(createUserDto: CreateUserDto) {
+  async create(createUserDto: CreateUserDto, user: IUser) {
     let hasPassWord = this.getHashPassWord(createUserDto.password);
 
-    let user = this.userModel.create({
+    let users = this.userModel.create({
+      name: createUserDto.name,
       email: createUserDto.email,
       pasword: hasPassWord,
-      name: createUserDto.name,
+      age: createUserDto.age,
+      gender: createUserDto.gender,
+      address: createUserDto.address,
+      role: createUserDto.role,
+      company: createUserDto.company,
+      createdBy: {
+        _id: user._id,
+        email: user.email,
+      },
     });
-    return user;
+    return users;
   }
 
-  findAll() {
-    return `This action returns all users`;
+  async findAll(page: number, limit: number, queryString: string) {
+    const { filter, sort, projection, population } = aqp(queryString);
+    delete filter.page;
+    delete filter.limit;
+
+    let offset = (+page - 1) * +limit;
+    let defaultLimit = +limit ? +limit : 10;
+
+    const totalItems = (await this.userModel.find(filter)).length;
+    const totalPages = Math.ceil(totalItems / defaultLimit);
+
+    const result = await this.userModel
+      .find(filter)
+      .skip(offset)
+      .limit(defaultLimit)
+      .sort(sort as any)
+      .select('-password')
+      .populate(population)
+      .exec();
+
+    return {
+      meta: {
+        current: page, //trang hiện tại
+        pageSize: limit, //số lượng bản ghi đã lấy
+        pages: totalPages, //tổng số trang với điều kiện query
+        total: totalItems, // tổng số phần tử (số bản ghi)
+      },
+      result, //kết quả query
+    };
   }
 
   async findOne(id: string) {
@@ -39,9 +77,11 @@ export class UsersService {
       return 'Not found User';
     }
 
-    let userById = await this.userModel.findById({
-      _id: id,
-    });
+    let userById = await this.userModel
+      .findById({
+        _id: id,
+      })
+      .select('-password');
     return userById;
   }
 
@@ -55,24 +95,63 @@ export class UsersService {
     return await compareSync(password, hash);
   }
 
-  async update(id: string, updateUserDto: UpdateUserDto) {
+  async update(id: string, updateUserDto: UpdateUserDto, user: IUser) {
     let userUpdate = await this.userModel.updateOne(
       {
         _id: id,
       },
       {
-        email: updateUserDto.email,
         name: updateUserDto.name,
+        email: updateUserDto.email,
+        age: updateUserDto.age,
+        gender: updateUserDto.gender,
+        address: updateUserDto.address,
+        role: updateUserDto.role,
+        company: updateUserDto.company,
+        updatedBy: {
+          _id: user._id,
+          email: user.email,
+        },
       },
     );
 
     return userUpdate;
   }
 
-  async remove(id: string) {
-    if (!mongoose.Types.ObjectId.isValid(id)) {
-      return 'Not found User';
-    }
+  async remove(id: string, user: IUser) {
+    // if (!mongoose.Types.ObjectId.isValid(id)) {
+    //   return 'Not found User';
+    // }
+    await this.userModel.findOne(
+      {
+        _id: id,
+      },
+      {
+        deletedBy: {
+          _id: user._id,
+          email: user.email,
+        },
+      },
+    );
+
     return await this.userModel.softDelete({ _id: id });
+  }
+
+  async Register(registerUserDto: RegisterUserDto) {
+    let hasPassWord = this.getHashPassWord(registerUserDto.password);
+    let isExits = this.userModel.findOne({ email: registerUserDto.email });
+    if (isExits) {
+      throw new BadRequestException('Email đã tồn tại trên hệ thống');
+    }
+    let register = await this.userModel.create({
+      name: registerUserDto.name,
+      email: registerUserDto.email,
+      pasword: hasPassWord,
+      age: registerUserDto.age,
+      gender: registerUserDto.gender,
+      adress: registerUserDto.address,
+      role: 'USER',
+    });
+    return register;
   }
 }
