@@ -29,8 +29,8 @@ export class CompaniesService {
 
   async findAll(page: number, limit: number, querystring: string) {
     const { filter, sort, projection, population } = aqp(querystring);
-    delete filter.page;
-    delete filter.limit;
+    delete filter.current;
+    delete filter.pageSize;
 
     let offset = (+page - 1) * +limit;
     let defaultLimit = +limit ? +limit : 10;
