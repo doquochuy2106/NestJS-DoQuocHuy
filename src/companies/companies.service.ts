@@ -19,6 +19,7 @@ export class CompaniesService {
       name: createCompanyDto.name,
       address: createCompanyDto.address,
       description: createCompanyDto.description,
+      logo: createCompanyDto.logo,
       createdBy: {
         _id: user._id,
         email: user.email,
@@ -68,6 +69,7 @@ export class CompaniesService {
         name: updateCompanyDto.name,
         address: updateCompanyDto.address,
         description: updateCompanyDto.description,
+        logo: updateCompanyDto.logo,
         updatedBy: {
           _id: user._id,
           email: user.email,
