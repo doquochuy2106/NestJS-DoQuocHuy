@@ -24,13 +24,14 @@ export class FilesController {
   @Public()
   @Post('upload')
   @ResponseMessage('Upload Single File')
-  @UseInterceptors(FileInterceptor('file')) // 'file' phải khớp với key trong Form-data
+  @UseInterceptors(FileInterceptor('fileUpload')) // 'file' phải khớp với key trong Form-data
   uploadFile(
     @UploadedFile(
       new ParseFilePipeBuilder()
         .addFileTypeValidator({
           // Sử dụng Regex bao quát các loại mimetype
-          fileType: /(jpg|jpeg|png|gif|pdf|msword|text\/plain)$/,
+          fileType:
+            /^(jpg|jpeg|image\/jpeg|png|image\/png|gif|txt|pdf|application\/pdf|doc|docx|text\/plain)$/i,
         })
         .addMaxSizeValidator({
           maxSize: 1024 * 1024, // 1MB

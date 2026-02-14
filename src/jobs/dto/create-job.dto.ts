@@ -32,6 +32,9 @@ export class CreateJobDto {
   @IsString({ each: true, message: 'Mỗi skill phải là một chuỗi' })
   skill: string[];
 
+  @IsNotEmpty({ message: 'Logo không được để trống' })
+  logo: string;
+
   @IsNotEmptyObject()
   @IsObject()
   @ValidateNested()
