@@ -10,6 +10,7 @@ import {
   UploadedFile,
   ParseFilePipeBuilder,
   HttpStatus,
+  Req,
 } from '@nestjs/common';
 import { FilesService } from './files.service';
 import { CreateFileDto } from './dto/create-file.dto';
@@ -29,21 +30,22 @@ export class FilesController {
     @UploadedFile(
       new ParseFilePipeBuilder()
         .addFileTypeValidator({
-          // Sử dụng Regex bao quát các loại mimetype
           fileType:
             /^(jpg|jpeg|image\/jpeg|png|image\/png|gif|txt|pdf|application\/pdf|doc|docx|text\/plain)$/i,
         })
-        .addMaxSizeValidator({
-          maxSize: 1024 * 1024, // 1MB
-        })
-        .build({
-          errorHttpStatusCode: HttpStatus.UNPROCESSABLE_ENTITY,
-        }),
+        .addMaxSizeValidator({ maxSize: 1024 * 1024 })
+        .build({ errorHttpStatusCode: HttpStatus.UNPROCESSABLE_ENTITY }),
     )
     file: Express.Multer.File,
+    @Req() req: any, // Thêm dòng này để đọc header
   ) {
+    // Lấy folder từ header giống hệt bên MulterConfig
+    const folder = req?.headers?.folder_type ?? 'default';
+
     return {
       fileName: file.filename,
+      // TRẢ VỀ URL NÀY CHO FRONTEND
+      url: `/images/${folder}/${file.filename}`,
     };
   }
 
