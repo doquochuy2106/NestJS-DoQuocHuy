@@ -81,14 +81,17 @@ export class UsersService {
       .findById({
         _id: id,
       })
-      .select('-password');
+      .select('-password')
+      .populate({ path: 'role', select: { name: 1, _id: 1 } });
     return userById;
   }
 
   async findByUserName(username: string) {
-    return await this.userModel.findOne({
-      email: username,
-    });
+    return await this.userModel
+      .findOne({
+        email: username,
+      })
+      .populate({ path: 'role', select: { name: 1, permissions: 1 } });
   }
 
   async isValidPassWord(password: string, hash: string) {
@@ -96,6 +99,10 @@ export class UsersService {
   }
 
   async update(id: string, updateUserDto: UpdateUserDto, user: IUser) {
+    let foundUser = await this.userModel.findOne({ _id: id });
+    if (foundUser.email === 'admin@gmail.com') {
+      throw new BadRequestException('Không thể xỏa tài khoản admin@gmail.com');
+    }
     let userUpdate = await this.userModel.updateOne(
       {
         _id: id,
