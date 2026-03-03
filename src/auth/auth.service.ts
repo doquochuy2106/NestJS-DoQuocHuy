@@ -20,7 +20,7 @@ export class AuthService {
     if (user) {
       const isValidPassWord = this.usersService.isValidPassWord(
         pass,
-        user.pasword,
+        user.password,
       );
       if (isValidPassWord) {
         return user;
