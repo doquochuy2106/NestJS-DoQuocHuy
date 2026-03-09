@@ -1,10 +1,12 @@
 import {
   ExecutionContext,
+  ForbiddenException,
   Injectable,
   UnauthorizedException,
 } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import { AuthGuard } from '@nestjs/passport';
+import { Request } from 'express';
 import { IS_PUBLIC_KEY } from 'src/decorator/customize';
 
 @Injectable()
@@ -24,7 +26,8 @@ export class JwtAuthGuard extends AuthGuard('jwt') {
     return super.canActivate(context);
   }
 
-  handleRequest(err, user, info) {
+  handleRequest(err, user, info, context: ExecutionContext) {
+    const request: Request = context.switchToHttp().getRequest();
     // You can throw an exception based on either "info" or "err" arguments
     if (err || !user) {
       throw (
@@ -33,6 +36,20 @@ export class JwtAuthGuard extends AuthGuard('jwt') {
           'Token không hợp lệ hoặc không có Token ở Header',
         )
       );
+    }
+
+    //check permissions
+    const targetMethod = request.method;
+    const targetEndpoint = request.route?.path;
+
+    const permissons = user?.permission ?? [];
+    const isExist = permissons.find(
+      (permisson) =>
+        targetMethod === permisson.method &&
+        targetEndpoint === permisson.apiPath,
+    );
+    if (!isExist) {
+      throw new ForbiddenException('Bạn không có quyền để truy cập quyền này');
     }
     return user;
   }

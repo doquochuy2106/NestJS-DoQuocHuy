@@ -31,10 +31,16 @@ export class DatabasesService implements OnModuleInit {
 
   async onModuleInit() {
     const isInit = this.configService.get<string>('SHOULD_INIT');
+    // Log để debug - Huy kiểm tra terminal xem có dòng này không nhé
+    this.logger.log(`>>> CHECK SHOULD_INIT: ${isInit}`);
     if (Boolean(isInit)) {
-      const countUser = await this.userModel.count({});
-      const countPermission = await this.permissionModel.count({});
-      const countRole = await this.roleModel.count({});
+      const countUser = await this.userModel.countDocuments({});
+      const countPermission = await this.permissionModel.countDocuments({});
+      const countRole = await this.roleModel.countDocuments({});
+
+      this.logger.log(
+        `>>> Kiểm tra số lượng - Users: ${countUser}, Permissions: ${countPermission}, Roles: ${countRole}`,
+      );
 
       //create permissions
       if (countPermission === 0) {
