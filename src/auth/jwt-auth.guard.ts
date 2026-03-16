@@ -28,29 +28,39 @@ export class JwtAuthGuard extends AuthGuard('jwt') {
 
   handleRequest(err, user, info, context: ExecutionContext) {
     const request: Request = context.switchToHttp().getRequest();
+
+    // const isSkipPermission = this.reflector.getAllAndOverride<boolean>(
+    //   // IS_PUBLIC_PERMISSION,
+    //   [context.getHandler(), context.getClass()],
+    // );
+
     // You can throw an exception based on either "info" or "err" arguments
     if (err || !user) {
       throw (
         err ||
         new UnauthorizedException(
-          'Token không hợp lệ hoặc không có Token ở Header',
+          'Token không hợp lệ or không có token ở Bearer Token ở Header request!',
         )
       );
     }
 
     //check permissions
     const targetMethod = request.method;
-    const targetEndpoint = request.route?.path;
+    const targetEndpoint = request.route?.path as string;
 
-    const permissons = user?.permission ?? [];
-    const isExist = permissons.find(
-      (permisson) =>
-        targetMethod === permisson.method &&
-        targetEndpoint === permisson.apiPath,
+    const permissions = user?.permissions ?? [];
+    let isExist = permissions.find(
+      (permission) =>
+        targetMethod === permission.method &&
+        targetEndpoint === permission.apiPath,
     );
+    if (targetEndpoint.startsWith('/api/v1/auth')) isExist = true;
     if (!isExist) {
-      throw new ForbiddenException('Bạn không có quyền để truy cập quyền này');
+      throw new ForbiddenException(
+        'Bạn không có quyền để truy cập endpoint này!',
+      );
     }
+
     return user;
   }
 }
