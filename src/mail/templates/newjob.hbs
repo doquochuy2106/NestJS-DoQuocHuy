@@ -1,7 +1,6 @@
 <html>
-
   <head>
-    <title>Parcel Sandbox</title>
+    <title>Job Notification</title>
     <meta charset='UTF-8' />
   </head>
 
@@ -23,8 +22,14 @@
               <td>
                 <table border='0' cellpadding='0' cellspacing='0' width='100%'>
                   <tr>
-                    <td align='left' style='font-weight: bold;'>IT Việc</td>
-                    <td align='right' style='color: #666;'>Ít nhưng mà chất</td>
+                    <td
+                      align='left'
+                      style='font-weight: bold; font-size: 20px;'
+                    >IT Việc</td>
+                    <td
+                      align='right'
+                      style='color: #666; font-style: italic;'
+                    >Ít nhưng mà chất</td>
                   </tr>
                 </table>
                 <hr
@@ -35,42 +40,63 @@
 
             <tr>
               <td style='padding-bottom: 20px;'>
-                <p>Hi Hary Pham,</p>
-                <p>One of these jobs may be your next one. Find out today!</p>
+                <p style='margin: 0 0 10px 0;'>Hi
+                  <strong>{{receiver}}</strong>,</p>
+                <p style='margin: 0;'>One of these jobs may be your next one.
+                  Find out today!</p>
               </td>
             </tr>
 
             <tr>
-              <td style='border-top: 1px dashed #ddd; padding: 15px 0;'>
-                <a
-                  href='#'
-                  style='color: #007bff; text-decoration: none; font-size: 18px; font-weight: bold;'
-                >
-                  Web Developer (PHP, JavaScript)
-                </a>
-                <div style='margin-top: 5px; font-size: 14px;'>VINAKET CO.LTD</div>
-                <div
-                  style='color: #e74c3c; font-weight: bold; margin-top: 5px;'
-                >1,000 - 2,500 USD</div>
-                <div style='margin-top: 10px;'>
-                  <span
-                    style='background: #eee; padding: 3px 8px; border-radius: 3px; font-size: 12px; margin-right: 5px;'
-                  >PHP</span>
-                  <span
-                    style='background: #eee; padding: 3px 8px; border-radius: 3px; font-size: 12px; margin-right: 5px;'
-                  >JavaScript</span>
-                </div>
+              <td>
+                <table border='0' cellpadding='0' cellspacing='0' width='100%'>
+                  {{#each jobs}}
+                    <tr>
+                      <td style='border-top: 1px dashed #ddd; padding: 15px 0;'>
+                        <a
+                          href='#'
+                          style='color: #007bff; text-decoration: none; font-size: 18px; font-weight: bold; display: block;'
+                        >
+                          {{name}}
+                        </a>
+                        <div
+                          style='margin-top: 5px; font-size: 14px; color: #333;'
+                        >{{companyName}}</div>
+                        <div
+                          style='color: #e74c3c; font-weight: bold; margin-top: 5px;'
+                        >{{salary}}</div>
+
+                        <div style='margin-top: 10px;'>
+                          {{#each skills}}
+                            <span
+                              style='background: #eee; padding: 3px 8px; border-radius: 3px; font-size: 12px; margin-right: 5px; color: #555; display: inline-block; margin-bottom: 5px;'
+                            >
+                              {{this}}
+                            </span>
+                          {{/each}}
+                        </div>
+                      </td>
+                    </tr>
+                  {{/each}}
+                </table>
               </td>
             </tr>
 
             <tr>
-              <td align='center' style='padding-top: 25px;'>
+              <td align='center' style='padding: 25px 0;'>
                 <a
                   href='#'
-                  style='background-color: #ea1e30; color: white; padding: 12px 25px; text-decoration: none; border-radius: 5px; display: inline-block; font-weight: bold; width: 90%;'
+                  style='background-color: #ea1e30; color: white; padding: 12px 0; text-decoration: none; border-radius: 5px; display: block; font-weight: bold; width: 100%; text-align: center;'
                 >
                   Xem thêm job tại IT Việc
                 </a>
+              </td>
+            </tr>
+
+            <tr>
+              <td style='padding-top: 10px; color: #777; font-size: 14px;'>
+                Cheers,<br />
+                <strong>The ITviec Team</strong>
               </td>
             </tr>
 
@@ -79,5 +105,4 @@
       </tr>
     </table>
   </body>
-
 </html>
