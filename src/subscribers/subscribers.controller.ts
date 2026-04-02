@@ -13,6 +13,7 @@ import { CreateSubscriberDto } from './dto/create-subscriber.dto';
 import { UpdateSubscriberDto } from './dto/update-subscriber.dto';
 import {
   ResponseMessage,
+  SkipCheckPermission,
   // SkipCheckPermission,
   User,
 } from 'src/decorator/customize';
@@ -35,7 +36,7 @@ export class SubscribersController {
 
   @Post('skills')
   @ResponseMessage("Get subscriber's skills")
-  // @SkipCheckPermission()
+  @SkipCheckPermission()
   getUserSkills(@User() user: IUser) {
     return this.subscribersService.getSkills(user);
   }
@@ -57,7 +58,7 @@ export class SubscribersController {
   }
 
   @Patch()
-  // @SkipCheckPermission()
+  @SkipCheckPermission()
   @ResponseMessage('Update a subscriber')
   update(
     @Body() updateSubscriberDto: UpdateSubscriberDto,
