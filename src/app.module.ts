@@ -18,11 +18,17 @@ import { DatabasesModule } from './databases/databases.module';
 import { SubscribersModule } from './subscribers/subscribers.module';
 import { MailModule } from './mail/mail.module';
 import { ScheduleModule } from '@nestjs/schedule';
+import { ThrottlerModule } from '@nestjs/throttler';
 
 @Module({
   imports: [
     ScheduleModule.forRoot(),
     // MongooseModule.forRoot('mongodb+srv://admin:21062004@cluster0.22cvu.mongodb.net/?appName=Cluster0'),
+    ThrottlerModule.forRoot({
+      ttl: 60,
+      limit: 2,
+    }),
+
     MongooseModule.forRootAsync({
       imports: [ConfigModule],
       useFactory: async (configService: ConfigService) => ({
