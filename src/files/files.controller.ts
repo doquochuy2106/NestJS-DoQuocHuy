@@ -11,6 +11,7 @@ import {
   ParseFilePipeBuilder,
   HttpStatus,
   Req,
+  UseFilters,
 } from '@nestjs/common';
 import { FilesService } from './files.service';
 import { CreateFileDto } from './dto/create-file.dto';
@@ -18,6 +19,7 @@ import { UpdateFileDto } from './dto/update-file.dto';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { Public, ResponseMessage } from 'src/decorator/customize';
 import { ApiTags } from '@nestjs/swagger';
+import { HttpExceptionFilter } from 'core/http-exception.filter';
 
 @ApiTags('files')
 @Controller('files')
@@ -28,26 +30,10 @@ export class FilesController {
   @Post('upload')
   @ResponseMessage('Upload Single File')
   @UseInterceptors(FileInterceptor('fileUpload')) // 'file' phải khớp với key trong Form-data
-  uploadFile(
-    @UploadedFile(
-      new ParseFilePipeBuilder()
-        .addFileTypeValidator({
-          fileType:
-            /^(jpg|jpeg|image\/jpeg|png|image\/png|gif|txt|pdf|application\/pdf|doc|docx|text\/plain)$/i,
-        })
-        .addMaxSizeValidator({ maxSize: 1024 * 1024 })
-        .build({ errorHttpStatusCode: HttpStatus.UNPROCESSABLE_ENTITY }),
-    )
-    file: Express.Multer.File,
-    @Req() req: any, // Thêm dòng này để đọc header
-  ) {
-    // Lấy folder từ header giống hệt bên MulterConfig
-    const folder = req?.headers?.folder_type ?? 'default';
-
+  @UseFilters(new HttpExceptionFilter())
+  uploadFile(@UploadedFile() file: Express.Multer.File) {
     return {
       fileName: file.filename,
-      // TRẢ VỀ URL NÀY CHO FRONTEND
-      url: `/images/${folder}/${file.filename}`,
     };
   }
 
